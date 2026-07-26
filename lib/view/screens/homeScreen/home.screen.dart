@@ -6,7 +6,8 @@ import '../../shared/my.error.widget.dart';
 import '../../shared/my.text.view.dart';
 import 'package:provider/provider.dart';
 
-import '../../../data/remote/response/api.status.dart';
+import '../../../core/di/service.locator.dart';
+import '../../../core/state/view.state.dart';
 import '../../../view_model/userViewModel/user.view.model.dart';
 import '../userScreen/user.screen.dart';
 
@@ -20,7 +21,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final UserVM viewModel = UserVM();
+  final UserVM viewModel = sl<UserVM>();
 
   @override
   void initState() {
@@ -38,19 +39,11 @@ class _HomeScreenState extends State<HomeScreen> {
       body: ChangeNotifierProvider<UserVM>(
         create: (BuildContext context) => viewModel,
         child: Consumer<UserVM>(builder: (context, viewModel, _) {
-          switch (viewModel.userModel.status) {
-            case ApiStatus.loading:
-              print("Log :: LOADING");
-              return LoadingWidget();
-            case ApiStatus.error:
-              print("Log :: ERROR");
-              return MyErrorWidget(viewModel.userModel.message ?? "NA");
-            case ApiStatus.completed:
-              print("Log :: COMPLETED");
-              return _getUsersListView(viewModel.userModel.data?.users);
-            default:
-          }
-          return Container();
+          return switch (viewModel.state) {
+            ViewStateLoading() => LoadingWidget(),
+            ViewStateError(:final message) => MyErrorWidget(message),
+            ViewStateSuccess(:final data) => _getUsersListView(data.users),
+          };
         }),
       ),
     );

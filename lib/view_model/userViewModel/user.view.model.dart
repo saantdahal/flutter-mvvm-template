@@ -1,24 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:mvvm/models/userModel/user.model.dart';
-import '../../data/remote/response/api.response.dart';
-import '../../repository/userRepo/user.repo.dart';
+
+import '../../core/result/result.dart';
+import '../../core/state/view.state.dart';
+import '../../repository/userRepo/base.user.repo.dart';
 
 class UserVM extends ChangeNotifier {
-  final _myRepo = UserRepo();
+  final BaseUserRepo _userRepo;
 
-  ApiResponse<UserModel> userModel = ApiResponse.loading();
+  UserVM(this._userRepo);
 
-  void _setUserMain(ApiResponse<UserModel> response) {
-    userModel = response;
-    notifyListeners();
-  }
+  ViewState<UserModel> state = const ViewStateLoading();
 
   Future<void> fetchUserData() async {
-    _setUserMain(ApiResponse.loading());
-    _myRepo
-        .getUserData()
-        .then((value) => _setUserMain(ApiResponse.completed(value)))
-        .onError((error, stackTrace) =>
-            _setUserMain(ApiResponse.error(error.toString())));
+    state = const ViewStateLoading();
+    notifyListeners();
+
+    final result = await _userRepo.getUserData();
+    state = switch (result) {
+      Ok(value: final value) => ViewStateSuccess(value),
+      Err(failure: final failure) => ViewStateError(failure.message),
+    };
+    notifyListeners();
   }
 }
