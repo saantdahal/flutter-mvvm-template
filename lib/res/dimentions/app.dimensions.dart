@@ -1,4 +1,4 @@
-import 'package:mvvm/res/dimentions/Dimensions.dart';
+import 'package:mvvm/res/dimentions/dimensions.dart';
 
 class AppDimension extends Dimensions {
   @override
