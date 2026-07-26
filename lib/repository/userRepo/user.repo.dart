@@ -1,19 +1,23 @@
 import 'package:mvvm/models/userModel/user.model.dart';
 
+import '../../core/error/app.failure.dart';
+import '../../core/result/result.dart';
 import '../../data/remote/network/api.end.points.dart';
 import '../../data/remote/network/base.api.service.dart';
-import '../../data/remote/network/network.api.service.dart';
+import 'base.user.repo.dart';
 
-class UserRepo {
-  final BaseApiService _apiService = NetworkApiService();
+class UserRepo implements BaseUserRepo {
+  final BaseApiService _apiService;
 
-  Future<UserModel?> getUserData() async {
+  UserRepo(this._apiService);
+
+  @override
+  Future<Result<UserModel>> getUserData() async {
     try {
-      dynamic response = await _apiService.getResponse(ApiEndPoints().SIGN_IN);
-      final jsonData = UserModel.fromJson(response);
-      return jsonData;
+      final response = await _apiService.getResponse(ApiEndPoints().SIGN_IN);
+      return Ok(UserModel.fromJson(response));
     } catch (e) {
-      rethrow;
+      return Err(mapExceptionToFailure(e));
     }
   }
 }

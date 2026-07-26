@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mvvm/models/userModel/user.model.dart';
 import 'package:mvvm/view/screens/userScreen/user.screen.dart';
+import 'core/di/service.locator.dart';
 import 'view/screens/homeScreen/home.screen.dart';
 
 void main() {
+  setupServiceLocator();
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
     initialRoute: HomeScreen.id,
